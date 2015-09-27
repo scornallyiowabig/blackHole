@@ -1,3 +1,8 @@
+import processing.serial.*;
+
+Serial myPort;
+String rawSerial = null;
+
 float G = 0.5;
 
 ArrayList<blackHole> blackHoleList = new ArrayList<blackHole>();
@@ -13,8 +18,14 @@ float score = 0.0;
 
 
 void setup(){
+  String portName = Serial.list()[2]; //change the 0 to a 1 or 2 etc. to match your port
+  myPort = new Serial(this, portName, 9600);
+  myPort.clear();
+  myPort.readStringUntil('\n');
+  rawSerial=null;
+  
   background(0);
-  size(1200, 900);
+  size(1200, 500);
   
   blackHoleList.add(new blackHole(round(random(100,width-100)), round(random(100,height-100)), round(random(2000,6000)), 50));
   blackHoleList.add(new blackHole(round(random(100,width-100)), round(random(100,height-100)), round(random(2000,6000)), 50));
@@ -33,8 +44,22 @@ void setup(){
 }
 
 void draw(){
+  rawSerial = "";
+  if(myPort.available()>0){
+    rawSerial = myPort.readStringUntil('\n');
+    if(rawSerial!=null){
+      rawSerial = trim(rawSerial);
+      println(rawSerial);
+      if(rawSerial.equals("right")){vShip.add(0.5,0);}
+      if(rawSerial.equals("left")){vShip.add(-0.5,0);}
+      if(rawSerial.equals("up")){
+        vShip.add(0,-0.5);
+        println("BANANA");
+      }
+      if(rawSerial.equals("down")){vShip.add(0,0.5);}
+    }
+  }
   background(0);
-  
   pluto.gravity(blackHoleList);
   ceres.gravity(blackHoleList);
   
